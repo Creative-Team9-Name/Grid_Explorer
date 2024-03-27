@@ -3,9 +3,22 @@ from spike.control import wait_for_seconds, wait_until, Timer
 from math import *
 import Enum
 
+### every time the robot moves and red_count < check red cell
+
+# TODO: red cell identificator - calculate path to move around the map (avoid yellow box) 
+# TODO: movement to search for yellow box - take in mind all the possible special cases
+# TODO: going to starting position
+# TODO: interaction with robot usign bluetooth to give stating position
+
+### security check
+# TODO: look alway foward while moving to see if we are going against something
+# TODO: do not go out of the grid
+# TODO: check black lines after movement to see if went too far
+
 hub = PrimeHub()
 
-hub.light_matrix.show_image('HAPPY')
+color = ColorSensor('E')
+distance = DistanceSensor('F')
 
 x = 4
 y = 6
@@ -25,9 +38,17 @@ class Orientation(): # maybe not needed
         self.E = (0, 1)
         self.S = (-1, 0)
         self.W = (0, -1)
-        self.direction = [self.N, self.E, self.S, self.W]
+        self.directions = [self.N, self.E, self.S, self.W]
+        self.current = 1
+        self.current_direction = self.directions[self.current]
     
-
+    def turn_right(self):
+        self.current = (self.current + 1) % 4
+        self.current_direction = self.directions[self.current]
+    
+    def turn_left(self):
+        self.current = (self.current - 1) % 4
+        self.current_direction = self.directions[self.current]
 
 class Move():
 
@@ -37,17 +58,16 @@ class Move():
     
     def move_straight(self):
         self.motor.move(23, unit='cm', steering=0, speed=100)
-        position = position + self.direction
+        position = position + self.direction.current_direction
 
     def turn_left(self):
-        self.direction = self.direction - 1 
         self.motor.move(0, unit='cm', steering=90, speed=50)
+        self.direction.turn_left()
     
     def turn_right(self):
-        self.direction = self.direction + 1
         self.motor.move(0, unit='cm', steering=-90, speed=50)
+        self.direction.turn_right()
     
-
 # wait for initial position and orientation
 
 red_count = 0
@@ -73,8 +93,6 @@ box_count = 0
     def go_straight
 
     def go_back
-
-
 
 
 '''
