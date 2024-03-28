@@ -72,20 +72,26 @@ class Move():
 
 red_count = 0
 box_count = 0
-
+red_position = []
+box_position = []
 # check color function that checks color when it's on a new cell and save value in matrix
 
 # while red_count = 2 and box_count = 2:
-'''
-    def check_color():
+
+def check_color(grid, red_count, red_position):
         cell_color = color.get_color()
         grid[position.x][position.y] = cell_color
+        if (cell_color == 'red'):
+            red_count+=1
+            red_position.append((position.x, position.y))
 
-    def check_box(orientation):
+def check_box(orientation):
         box_distance = distance.get_distance(short_range= False)
         box_position = int(box_distance / 23) + 1
-     
-
+        x_position = box_position
+        y_position = '?'
+        
+'''
     def turn90_clockwise
 
     def turn90_anticlockwise
@@ -96,7 +102,8 @@ box_count = 0
 
 
 '''
+
 if __name__ =='__main__':
     
     print(grid)
-    print('Hello') 
+    
