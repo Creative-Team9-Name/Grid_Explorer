@@ -2,6 +2,7 @@ from spike import PrimeHub, LightMatrix, Button, StatusLight, ForceSensor, Motio
 from spike.control import wait_for_seconds, wait_until, Timer
 from math import *
 import Enum
+import math
 
 ### every time the robot moves and red_count < check red cell
 
@@ -19,6 +20,8 @@ hub = PrimeHub()
 
 color = ColorSensor('E')
 distance = DistanceSensor('F')
+motor_pair = MotorPair('B', 'A')
+
 
 x = 4
 y = 6
@@ -27,7 +30,7 @@ y = 6
 # use dfs to find the best path back home
 # traveling-salesman algorithm to explore the grid until we find red cell
 # find yellow boxes forst al all!!
-
+#jjbsdvoavp
 position = (0,0)
 grid[x][y]
 
@@ -100,7 +103,6 @@ def move_to_starting_position():
         #??
 
 def sec_checks():
-        #        ~ not finished ~
         # Stop if grid edge, no extra cells of length 23 and more
         if distance.get_distance() < 23:
             motor_pair.stop()
@@ -108,11 +110,11 @@ def sec_checks():
         if color.get_color() == 'black':
             update_position()
 
-
 def update_position(orientation):
         global position
         position = (position.x + orientation.current_direction[0], position.y + orientation.current_direction[1])
-        
+
+
 def turn90_clockwise():
     # Turn the robot 90 degrees clockwise
     motor_pair.move(8.1 * math.pi / 4, 'cm', steering=100)  # Assuming wheels are 8.1 cm apart
@@ -128,6 +130,7 @@ def go_straight(distance):
 def go_back(distance):
     # Move the robot backwards for the given distance
     motor_pair.move(-distance, 'cm', steering=0)
+
 
 
 if __name__ =='__main__':
