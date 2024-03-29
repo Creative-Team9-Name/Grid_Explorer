@@ -86,22 +86,49 @@ def check_color(grid, red_count, red_position):
             red_position.append((position.x, position.y))
 
 def check_box(orientation):
-        box_distance = distance.get_distance(short_range= False)
-        box_position = int(box_distance / 23) + 1
-        x_position = box_position
-        y_position = '?'
+        box_distance = distance.get_distance(short_range=False)
+        box_position = int(box_distance / 23) + 1  
+        # anged from ~> 
+        # x_position = box_position
+        # y_position = '?'
+        x_position = position.x + orientation.current_direction[0] * box_position
+        y_position = position.y + orientation.current_direction[1] * box_position
+        return x_position, y_position
+
+def move_to_starting_position():
+        def
+        #??
+
+def sec_checks():
+        #        ~ not finished ~
+        # Stop if grid edge, no extra cells of length 23 and more
+        if distance.get_distance() < 23:
+            motor_pair.stop()
         
-'''
-    def turn90_clockwise
-
-    def turn90_anticlockwise
-
-    def go_straight
-
-    def go_back
+        if color.get_color() == 'black':
+            update_position()
 
 
-'''
+def update_position(orientation):
+        global position
+        position = (position.x + orientation.current_direction[0], position.y + orientation.current_direction[1])
+        
+def turn90_clockwise():
+    # Turn the robot 90 degrees clockwise
+    motor_pair.move(8.1 * math.pi / 4, 'cm', steering=100)  # Assuming wheels are 8.1 cm apart
+
+def turn90_anticlockwise():
+    # Turn the robot 90 degrees anticlockwise
+    motor_pair.move(8.1 * math.pi / 4, 'cm', steering=-100)  # Assuming wheels are 8.1 cm apart
+
+def go_straight(distance):
+    # Move the robot straight for the given distance
+    motor_pair.move(distance, 'cm', steering=0)
+
+def go_back(distance):
+    # Move the robot backwards for the given distance
+    motor_pair.move(-distance, 'cm', steering=0)
+
 
 if __name__ =='__main__':
     
