@@ -13,37 +13,46 @@ import math
 # TODO: interaction with robot usign bluetooth to give stating position ---- ANGELA (with buttons)
 
 ### security check
-# TODO: look alway foward while moving to see if we are going against something
 # TODO: do not go out of the grid
 # TODO: check black lines after movement to see if went too far
 
+
+# the method:
+#   1) find the yellow boxes
+#       - 2 cases: yellow box on the vert1 line + no yellow box on the vert1 line
+#   2) find the red cells 
+#       - will already have 
+#           coordinates of yellow boxes 
+#           some of the cells checked 
+#   3) go back to starting position
+
 hub = PrimeHub()
 
-color = ColorSensor('E')
-distance = DistanceSensor('F')
-motor_pair = MotorPair('B', 'A') ### decide whether to keep or not, based on the movement class
+color = ColorSensor('E') # change if necessary
+distance_front = DistanceSensor('D') # change if necessary
+distance_right = DistanceSensor('C') # change if necessary
+motor_pair = MotorPair('B', 'A') #### change if necessary
 
 
 y = 4
 x = 6
 start = (0,0)
 position = (0,0)
-red_count = 0
-box_count = 0
-red_position = []
-box_position = []
-grid = [[None for i in range(y)] for j in range(x)]
 
-# graph method
-# eliminate from graph the cells that contain box
-# use dfs to find the best path back home
-# traveling-salesman algorithm to explore the grid until we find red cell
-# find yellow boxes forst al all!!
-#jjbsdvoavp
+red_count = 0
+yellow_box_count = 0
+
+red_position = []
+yellow_box_position = []
+grid = [[None for i in range(y)] for j in range(x)]
+ # for recording the red cells on our grid: 0 - not checked; 1 - red cell; 2 - checked+no red cell;
+red_cell_matrix = [[0 for i in range(4)] for j in range(6)] 
+
+
 
 
 # wait for starting position
-def initial_position():
+def initial_position():               
     # wait for button to be pressed
     while True:
         if hub.left_button.is_pressed():
@@ -53,10 +62,11 @@ def initial_position():
         if hub.right_button.is_pressed():
             start = (5,3)
             position = (5,3)
-            Orientation
+            # Orientation (???)
             break
 
-class Orientation(): # maybe not needed
+
+'''class Orientation(): # maybe not needed
 
     def __init__(self, orientation = 1):
         self.directions = [(1, 0), (0, 1), (-1, 0), (0, -1)] # N=0, E=1, S=2, W=3
@@ -69,7 +79,8 @@ class Orientation(): # maybe not needed
     
     def turn_left(self):
         self.current = (self.current - 1) % 4
-        self.current_direction = self.directions[self.current]
+        self.current_direction = self.directions[self.current]'''
+
 
 class Move():
 
@@ -92,27 +103,46 @@ class Move():
         self.motor.move(0, unit='cm', steering=-90, speed=50)
         self.direction.turn_right()
 
-# check color function that checks color when it's on a new cell and save value in matrix
-# while red_count = 2 and box_count = 2:
 
-def check_color(grid, red_count, red_position): ## parameters are not needed
+def check_color():   
+        global red_count, red_position, red_cell_matrix
+
         cell_color = color.get_color()
-        grid[position.x][position.y] = cell_color ## check if it's correct
+
         if (cell_color == 'red'):
-            red_count+=1
+            red_count  += 1
             red_position.append((position.x, position.y))
+            red_cell_matrix[position.x][position.y] = 1
+        else:
+            red_cell_matrix[position.x][position.y] = 2
 
-def check_box(orientation):
-        box_distance = distance.get_distance(short_range=False)
-        box_position = int(box_distance / 23) + 1  
-        # anged from ~> 
-        # x_position = box_position
-        # y_position = '?'
-        x_position = position.x + orientation.current_direction[0] * box_position
-        y_position = position.y + orientation.current_direction[1] * box_position
-        return x_position, y_position
 
-def shortest_path_home():  ### tested, correct!
+
+                    # P A R T   1 ~~~~~~
+
+def search_yellow_boxes(distance_front, distance_right, motor_pair):
+        global yellow_box_position, yellow_box_count
+        global red_count, red_position, red_cell_matrix         #because we might find red cells while searching for yellow boxes
+
+        if distance_front.get_distance() < 23 * ...
+        if distance_right.get_distance() <23 * ...
+        
+        
+        
+        return yellow_box_position
+
+                    # P A R T   2 ~~~~~~
+
+def search_red_cells(distance_front, distance_right, motor_pair):
+        global red_count, red_position, red_cell_matrix
+
+
+
+        return red_position
+        
+                    # P A R T   3 ~~~~~~ done kinda ~~~~~~~
+
+def shortest_path_home():
     # djikstra to find the shortest path to starting position
     distance = []
     for i in range(x):
@@ -172,22 +202,10 @@ def return_home(move): ### check if it's correct
                 move.move_straight()
 
 
-def sec_checks():
-        # Stop if grid edge, no extra cells of length 23 and more
-        if distance.get_distance() < 23:
-            motor_pair.stop()
-        
-        if color.get_color() == 'black':
-            update_position()
-
-def update_position(orientation):
-        global position
-        position = (position.x + orientation.current_direction[0], position.y + orientation.current_direction[1])
-
 
 if __name__ =='__main__':
     initial_position()
-    move = Move(('B', 'A')) #TODO: check if the ports are correct
+    move = Move(('B', 'A'))
 
     
     print(grid)
