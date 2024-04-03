@@ -184,24 +184,6 @@ def update_position(orientation):
         global position
         position = (position.x + orientation.current_direction[0], position.y + orientation.current_direction[1])
 
-############ there's already a turn method in the motor_pair class #######################
-def turn90_clockwise():
-    # Turn the robot 90 degrees clockwise
-    motor_pair.move(8.1 * math.pi / 4, 'cm', steering=100)  # Assuming wheels are 8.1 cm apart
-
-def turn90_anticlockwise():
-    # Turn the robot 90 degrees anticlockwise
-    motor_pair.move(8.1 * math.pi / 4, 'cm', steering=-100)  # Assuming wheels are 8.1 cm apart
-
-def go_straight(distance):
-    # Move the robot straight for the given distance
-    motor_pair.move(distance, 'cm', steering=0)
-
-def go_back(distance):
-    # Move the robot backwards for the given distance
-    motor_pair.move(-distance, 'cm', steering=0)
-#########################################################################################
-
 
 if __name__ =='__main__':
     initial_position()
