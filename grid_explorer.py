@@ -94,6 +94,7 @@ class Move():
     def move_straight(self):
         self.motor.move(23, unit='cm', steering=0, speed=100)
         position = position + self.direction.current_direction
+        check_color()
 
     def turn_left(self):
         self.motor.move(0, unit='cm', steering=90, speed=50)
@@ -116,24 +117,89 @@ def check_color():
         else:
             red_cell_matrix[position.x][position.y] = 2
 
+def check_horizontal(distance_sensor):
+        global yellow_box_count
 
+        distance_to_edge = abs (5 - position.x)
+
+        if distance_sensor.get_distance() / 23 < distance_to_edge:
+                box_position = min(int(distance_sensor.get_distance() / 23) + 1, 5)
+                yellow_box_position.append((box_position, position.y))
+                yellow_box_count += 1
+
+def check_vertical(distance_sensor):
+        global yellow_box_count
+        
+        distance_to_edge = 3 - position.x
+
+        if distance_sensor.get_distance() / 23 < distance_to_edge:
+                box_position = min(int(distance_sensor.get_distance() / 23) + 1, 3)
+                yellow_box_position.append((box_position, position.y))
+                yellow_box_count += 1
 
                     # P A R T   1 ~~~~~~
 
-def search_yellow_boxes(distance_front, distance_right, motor_pair):
+def search_yellow_boxes(distance_front, distance_right, move):
         global yellow_box_position, yellow_box_count
         global red_count, red_position, red_cell_matrix         #because we might find red cells while searching for yellow boxes
 
-        if distance_front.get_distance() < 23 * ...
-        if distance_right.get_distance() <23 * ...
-        
-        
-        
-        return yellow_box_position
+        check_vertical(distance_front)
+        check_horizontal(distance_right)
+
+        if yellow_box_count == 2: return yellow_box_position
+        elif yellow_box_count == 1:
+            if yellow_box_position[0].x == 0:
+                  #get to position (1,0)
+                  move.turn_right()
+                  move.move_straight()
+                  move.turn_left()
+
+                  check_vertical(distance_front)
+
+                  if yellow_box_count == 2: return yellow_box_position
+
+                  else: 
+                       while (distance_front.get_distance() / 23 - position.y > 1):
+                            move.move_straight()
+                            check_horizontal(distance_right)
+        elif yellow_box_count == 0:
+                while (distance_front.get_distance() / 23 - position.y > 1):
+                            move.move_straight()
+                            check_horizontal(distance_right)
+                move.turn_right()
+
+                if yellow_box_count == 2: return yellow_box_position
+                elif yellow_box_count == 1: 
+                    if yellow_box_position[0].y !=3:
+                        while (distance_front.get_distance() / 23 - position.y > 1):
+                            move.move_straight()
+                            check_horizontal(distance_right)
+                            return yellow_box_position
+                    else: # case when it is on top horizontal line where one yellow box is hidden behind another
+                        # move to (0,2) 
+                        move.turn_right()
+                        move.turn_right()
+                        move.move_straight()
+
+                        move.turn_left()
+
+                        while (distance_front.get_distance() / 23 - position.y > 1):
+                             move.move_straight()
+                        move.turn_left()
+                        move.move_straight()
+                        move.turn_left()
+
+                        check_horizontal(distance_front)
+
+                        return yellow_box_position
+
+
+                
+    
 
                     # P A R T   2 ~~~~~~
 
-def search_red_cells(distance_front, distance_right, motor_pair):
+def search_red_cells(distance_front, distance_right, move):
         global red_count, red_position, red_cell_matrix
 
 
