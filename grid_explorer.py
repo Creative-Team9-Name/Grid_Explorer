@@ -145,12 +145,10 @@ def search_yellow_boxes(distance_front, distance_right, move):
         check_horizontal(distance_right)
 
         if yellow_box_count == 2: return grid    # case where we find 2 boxes on vert1 and hor1 lines
-        elif yellow_box_count == 1:                 # case where we have one box in vert1 line
-            for i in range(y):
-                if grid[0][y] == 'B':
-                    move.turn_right()
-                    move.move_straight()
-                    move.turn_left()
+        elif yellow_box_count == 1 and any(grid[0][j] == 'B' for j in range(y)):          # case where we have one box in vert1 line
+                move.turn_right()
+                move.move_straight()
+                move.turn_left()
 
                 check_vertical(distance_front)
 
@@ -168,22 +166,14 @@ def search_yellow_boxes(distance_front, distance_right, move):
                             grid[0][2] = 'B'
                             return grid
 
-        elif yellow_box_count == 0 or (yellow_box_count==1 and grid[x][0] == 0):
+        else:
                 while (distance_front.get_distance() / 23 - position.y > 1):
                             move.move_straight()
                             check_horizontal(distance_right)
                 
 
                 if yellow_box_count == 2: return grid
-                elif yellow_box_count == 1: 
-                    for j in range (5):
-                        if grid[j][3] != 'B':  # case when the top horizontal line is empty
-                            while (distance_front.get_distance() / 23 - position.y > 1):
-                                move.move_straight()
-                                check_horizontal(distance_right)
-                                return grid
-                    else:           # case when it is on top horizontal line where one yellow box is hidden behind another
-                        # move to (0,2) 
+                elif yellow_box_count == 1 and any(grid[j][3] == 'B' for j in range(5)): # case when it is on top horizontal line where one yellow box is hidden behind another
                         move.turn_around()
                         move.move_straight()
 
@@ -192,12 +182,20 @@ def search_yellow_boxes(distance_front, distance_right, move):
                         while (distance_front.get_distance() / 23 - position.y > 1):
                              move.move_straight()
                         move.turn_left()
-                        move.move_straight()
-                        move.turn_left()
-
-                        check_horizontal(distance_front)
-
-                        return grid
+                        check_color()
+                        if yellow_box_count == 2: return grid
+                        else: 
+                            move.move_straight()
+                            move.turn_left()
+                            check_horizontal(distance_front)
+                            return grid
+                else:           # when some other horizontal line and the box hidden behind it, we check vertical lines while moving horizontally
+                        while (distance_front.get_distance() / 23 - position.y > 1):
+                            move.turn_right()
+                            move.move_straight()
+                            check_horizontal(distance_right)
+                            return grid
+                    
 
 
                 
