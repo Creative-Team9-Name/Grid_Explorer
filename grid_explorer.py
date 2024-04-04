@@ -40,11 +40,11 @@ start = (0,0)
 position = (0,0)
 
 red_count = 0
-yellow_box_count = 0
+box_count = 0
 
 grid = [[None for i in range(y)] for j in range(x)]
-grid[0][0] = 'start'
-grid[5][3] = 'start'
+# grid[0][0] = 'start'
+# grid[5][3] = 'start'
 
 
 
@@ -103,24 +103,23 @@ class Move():
 
 def check_color():   
         global red_count, grid
-
         cell_color = color.get_color()
 
         if (cell_color == 'red'):
             red_count  += 1
             grid[position.x][position.y] = 'R'
         else:
-            grid[position.x][position.y] = 'Not R'
+            grid[position.x][position.y] = 'W'
+
 
 def check_horizontal(distance_sensor):
         global yellow_box_count
-
         cells_to_hor_edge = 5 - position.x
-
         if distance_sensor.get_distance() / 23 < cells_to_hor_edge:
                 box_position = min(int(distance_sensor.get_distance() / 23) + 1, 5)
                 grid[box_position][position.y] = 'B'
                 yellow_box_count += 1
+
 
 def check_vertical(distance_sensor):
         global yellow_box_count
@@ -237,7 +236,7 @@ def shortest_path_home():
         for dx, dy in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
             nx = pos_x + dx
             ny = pos_y + dy
-            if 0 <= nx < x and 0 <= ny < y and grid[nx][ny] != 'box':
+            if 0 <= nx < x and 0 <= ny < y and grid[nx][ny] != 'B':
                 new_dist = dist + 1  # Cost of moving to a neighbor is 1
                 if new_dist < distance[nx][ny]:
                     distance[nx][ny] = new_dist
