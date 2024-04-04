@@ -141,7 +141,9 @@ def check_vertical(distance_sensor):
                 yellow_box_position.append((box_position, position.y))
                 yellow_box_count += 1
 
+
                     # P A R T   1 ~~~~~~
+
 
 def search_yellow_boxes(distance_front, distance_right, move):
         global position
@@ -210,14 +212,20 @@ def search_yellow_boxes(distance_front, distance_right, move):
 
                     # P A R T   2 ~~~~~~
 
+
 def search_red_cells(distance_front, distance_right, move):
         global red_count, red_position, red_cell_matrix, yellow_box_count, yellow_box_position, position
 
-
-
+        for i in range(x):
+             for j in range (y):
+                  if red_cell_matrix[i][j] == 0:
+                       move.move_to_position((i, j))  ##should implement this somehow + it should contain check_color funciton + while going around the yellow boxes
+                       
         return red_position
         
+
                     # P A R T   3 ~~~~~~ done kinda ~~~~~~~
+
 
 def shortest_path_home():
     # djikstra to find the shortest path to starting position
