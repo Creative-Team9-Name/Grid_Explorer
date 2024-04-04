@@ -111,7 +111,7 @@ def check_color():
             red_count  += 1
             grid[position.x][position.y] = 'R'
         else:
-            grid[position.x][position.y] = 'Not R'
+            grid[position.x][position.y] = 'W'
 
 def check_horizontal(distance_sensor):
         global yellow_box_count, grid
