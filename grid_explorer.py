@@ -73,7 +73,7 @@ def initial_position():
             break
 
 
-'''class Orientation(): # maybe not needed
+class Orientation(): # maybe not needed
 
     def __init__(self, orientation = 1):
         self.directions = [(1, 0), (0, 1), (-1, 0), (0, -1)] # N=0, E=1, S=2, W=3
@@ -86,7 +86,7 @@ def initial_position():
     
     def turn_left(self):
         self.current = (self.current - 1) % 4
-        self.current_direction = self.directions[self.current]'''
+        self.current_direction = self.directions[self.current]
 
 
 class Move():
@@ -271,28 +271,24 @@ def shortest_path_home():
             if 0 <= nx < x and 0 <= ny < y and distance[nx][ny] == distance[pos_x][pos_y] - 1:
                 pos_x, pos_y = nx, ny
                 break
-    path.append(position)
+    # path.append(position)
     path.reverse()
     return path
 
 def return_home(move): ### check if it's correct
     path = shortest_path_home(move)
     for pos_x, pos_y in path:
-        if pos_x == position.x:
-            if pos_y > position.y:
-                move.move_straight()
-            else:
-                move.turn_left()
-                move.move_straight()
-        elif pos_y == position.y:
-            if pos_x > position.x:
+        dir_x = pos_x - position[0]
+        dir_y = pos_y - position[1]
+        dir = (dir_x, dir_y)
+        if dir != move.direction.current_direction:
+            if move.direction.directions[(move.direction.current + 1 )% 4] == dir:
                 move.turn_right()
-                move.move_straight()
+            elif move.direction.directions[(move.direction.current - 1 )% 4] == dir:
+                move.turn_left()
             else:
-                move.turn_left()
-                move.turn_left()
-                move.move_straight()
-
+                move.turn_around()
+        move.move_straight()
 
 
 if __name__ =='__main__':
