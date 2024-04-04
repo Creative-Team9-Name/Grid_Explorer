@@ -59,6 +59,7 @@ def initial_position():
         if hub.right_button.is_pressed():
             start = (5,3)
             position = (5,3)
+            Orientation
             break
 
 
@@ -111,23 +112,22 @@ def check_color():
         else:
             grid[position.x][position.y] = 'W'
 
-
 def check_horizontal(distance_sensor):
-        global yellow_box_count
+        global yellow_box_count, grid
         cells_to_hor_edge = 5 - position.x
         if distance_sensor.get_distance() / 23 < cells_to_hor_edge:
-                box_position = min(int(distance_sensor.get_distance() / 23) + 1, 5)
+                box_position = int(distance_sensor.get_distance() / 23) + 1
                 grid[box_position][position.y] = 'B'
                 yellow_box_count += 1
 
 
 def check_vertical(distance_sensor):
-        global yellow_box_count
+        global yellow_box_count, grid 
         
         cells_to_vert_edge = 3 - position.x
 
         if distance_sensor.get_distance() / 23 < cells_to_vert_edge:
-                box_position = min(int(distance_sensor.get_distance() / 23) + 1, 3)
+                box_position = int(distance_sensor.get_distance() / 23) + 1
                 grid[box_position][position.y] = 'B'
                 yellow_box_count += 1
 
@@ -143,42 +143,35 @@ def search_yellow_boxes(distance_front, distance_right, move):
         check_horizontal(distance_right)
 
         if yellow_box_count == 2: return grid    # case where we find 2 boxes on vert1 and hor1 lines
-        elif yellow_box_count == 1:                 # case where we have one box in vert1 line
-            if yellow_box_position[0].x == 0:
-                  #get to position (1,0)
-                  move.turn_right()
-                  move.move_straight()
-                  move.turn_left()
+        elif yellow_box_count == 1 and any(grid[0][j] == 'B' for j in range(y)):          # case where we have one box in vert1 line
+                move.turn_right()
+                move.move_straight()
+                move.turn_left()
 
-                  check_vertical(distance_front)
+                check_vertical(distance_front)
 
-                  if yellow_box_count == 2: return grid # if case we find second box on vert2
-                  else: 
-                        while (distance_front.get_distance() / 23 - position.y > 1):
-                            move.move_straight()
-                            check_horizontal(distance_right)
+                if yellow_box_count == 2: return grid # if case we find second box on vert2
+                else: 
+                    while (distance_front.get_distance() / 23 - position.y > 1):
+                        move.move_straight()
+                        check_horizontal(distance_right)
+                    if yellow_box_count == 2: return grid
+                    else: 
+                        move.turn_right()
+                        check_horizontal(distance_front)
                         if yellow_box_count == 2: return grid
-                        else: 
-                            move.turn_right()
-                            check_horizontal(distance_front)
-                            if yellow_box_count == 2: return grid
-                            elif yellow_box_count == 1: return yellow_box_position.append((0,2))
+                        elif yellow_box_count == 1: 
+                            grid[0][2] = 'B'
+                            return grid
 
-        elif yellow_box_count == 0 or (yellow_box_count==1 and yellow_box_position[0].y == 0):
+        else:
                 while (distance_front.get_distance() / 23 - position.y > 1):
                             move.move_straight()
                             check_horizontal(distance_right)
                 
 
                 if yellow_box_count == 2: return grid
-                elif yellow_box_count == 1: 
-                    if yellow_box_position[0].y !=3:        # case when the top horizontal line is empty
-                        while (distance_front.get_distance() / 23 - position.y > 1):
-                            move.move_straight()
-                            check_horizontal(distance_right)
-                            return grid
-                    else:           # case when it is on top horizontal line where one yellow box is hidden behind another
-                        # move to (0,2) 
+                elif yellow_box_count == 1 and any(grid[j][3] == 'B' for j in range(5)): # case when it is on top horizontal line where one yellow box is hidden behind another
                         move.turn_around()
                         move.move_straight()
 
@@ -187,12 +180,20 @@ def search_yellow_boxes(distance_front, distance_right, move):
                         while (distance_front.get_distance() / 23 - position.y > 1):
                              move.move_straight()
                         move.turn_left()
-                        move.move_straight()
-                        move.turn_left()
-
-                        check_horizontal(distance_front)
-
-                        return grid
+                        check_color()
+                        if yellow_box_count == 2: return grid
+                        else: 
+                            move.move_straight()
+                            move.turn_left()
+                            check_horizontal(distance_front)
+                            return grid
+                else:           # when some other horizontal line and the box hidden behind it, we check vertical lines while moving horizontally
+                        while (distance_front.get_distance() / 23 - position.y > 1):
+                            move.turn_right()
+                            move.move_straight()
+                            check_horizontal(distance_right)
+                            return grid
+                    
 
 
                 
@@ -202,14 +203,18 @@ def search_yellow_boxes(distance_front, distance_right, move):
 
 
 def search_red_cells(distance_front, distance_right, move):
-        global red_count, yellow_box_count, position
+        global red_count, yellow_box_count, position, grid
 
         for i in range(x):
-             for j in range (y):
-                  if grid[i][j] == None:
-                       move.move_to_position((i, j))  ##should implement this somehow + it should contain check_color funciton + while going around the yellow boxes
-                       
-        return grid
+            for j in range (y):
+                if red_count==2: return grid
+                else:
+                    if grid[i][j] == None:
+                        move.to_position() #### not done
+                        check_color()
+
+                        
+
         
 
                     # P A R T   3 ~~~~~~ done kinda ~~~~~~~
@@ -252,39 +257,37 @@ def shortest_path_home():
             if 0 <= nx < x and 0 <= ny < y and distance[nx][ny] == distance[pos_x][pos_y] - 1:
                 pos_x, pos_y = nx, ny
                 break
-    # path.append(position)
+    path.append(position)
     path.reverse()
     return path
 
 def return_home(move): ### check if it's correct
     path = shortest_path_home(move)
     for pos_x, pos_y in path:
-        dir_x = pos_x - position[0]
-        dir_y = pos_y - position[1]
-        dir = (dir_x, dir_y)
-        if dir != move.direction.current_direction:
-            if move.direction.directions[(move.direction.current + 1 )% 4] == dir:
-                move.turn_right()
-            elif move.direction.directions[(move.direction.current - 1 )% 4] == dir:
-                move.turn_left()
+        if pos_x == position.x:
+            if pos_y > position.y:
+                move.move_straight()
             else:
-                move.turn_around()
-        move.move_straight()
+                move.turn_left()
+                move.move_straight()
+        elif pos_y == position.y:
+            if pos_x > position.x:
+                move.turn_right()
+                move.move_straight()
+            else:
+                move.turn_left()
+                move.turn_left()
+                move.move_straight()
+
 
 
 if __name__ =='__main__':
     initial_position()
     move = Move(('B', 'A'))
 
-    while red_count != 2 and yellow_box_count != 2:
-         
-        # search for yellow boxes
+    search_yellow_boxes()
+    search_red_cells()
+    return_home()
 
-        # search for red cells
-
-        pass
-
-    # return home
-    return_home(move)
     print(grid)
     
