@@ -28,10 +28,10 @@ import math
 
 hub = PrimeHub()
 
-color = ColorSensor('E') # change if necessary
-distance_front = DistanceSensor('D') # change if necessary
-distance_right = DistanceSensor('C') # change if necessary
-motor_pair = MotorPair('B', 'A') #### change if necessary
+color = ColorSensor('A') # change if necessary
+distance_front = DistanceSensor('C') # change if necessary
+distance_right = DistanceSensor('D') # change if necessary
+motor_pair = MotorPair('E', 'F') #### change if necessary
 
 
 y = 4
