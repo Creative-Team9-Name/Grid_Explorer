@@ -17,6 +17,13 @@ import math
 # TODO: check black lines after movement to see if went too far
 
 
+#### sensors, motors and ports
+# front distance sensor = C
+# right distance sensor = D
+# Color sensor = A
+# right motor = E
+# left motor = F
+
 # the method:
 #   1) find the yellow boxes
 #       - 2 cases: yellow box on the vert1 line + no yellow box on the vert1 line

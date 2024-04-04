@@ -11,7 +11,7 @@ box_count = 0
 
 grid = [[None for i in range(y)] for j in range(x)]
 red_position = []
-box_position = [(2, 0), (2,3)]
+box_position = [(2, 0), (2,1)]
 for pos_x, pos_y in box_position:
     grid[pos_x][pos_y] = 'box'
 
@@ -58,7 +58,7 @@ def move_to_starting_position():
     path.reverse()
     return path
 
-position = (5, 3)
+position = (3, 0)
 start = (0,0)
 
 shortest_path = move_to_starting_position()
