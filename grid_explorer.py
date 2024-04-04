@@ -104,6 +104,10 @@ class Move():
         self.motor.move(0, unit='cm', steering=-90, speed=50)
         self.direction.turn_right()
 
+    def turn_around(self):
+        self.turn_right()
+        self.turn_right()
+
 
 def check_color():   
         global red_count, red_position, red_cell_matrix
@@ -140,14 +144,16 @@ def check_vertical(distance_sensor):
                     # P A R T   1 ~~~~~~
 
 def search_yellow_boxes(distance_front, distance_right, move):
+        global position
         global yellow_box_position, yellow_box_count
         global red_count, red_position, red_cell_matrix         #because we might find red cells while searching for yellow boxes
 
+        # at initial position ~> 
         check_vertical(distance_front)
         check_horizontal(distance_right)
 
-        if yellow_box_count == 2: return yellow_box_position
-        elif yellow_box_count == 1:
+        if yellow_box_count == 2: return yellow_box_position    # case where we find 2 boxes on vert1 and hor1 lines
+        elif yellow_box_count == 1:                 # case where we have one box in vert1 line
             if yellow_box_position[0].x == 0:
                   #get to position (1,0)
                   move.turn_right()
@@ -156,29 +162,34 @@ def search_yellow_boxes(distance_front, distance_right, move):
 
                   check_vertical(distance_front)
 
-                  if yellow_box_count == 2: return yellow_box_position
-
+                  if yellow_box_count == 2: return yellow_box_position # if case we find second box on vert2
                   else: 
-                       while (distance_front.get_distance() / 23 - position.y > 1):
+                        while (distance_front.get_distance() / 23 - position.y > 1):
                             move.move_straight()
                             check_horizontal(distance_right)
-        elif yellow_box_count == 0:
+                        if yellow_box_count == 2: return yellow_box_position
+                        else: 
+                            move.turn_right()
+                            check_horizontal(distance_front)
+                            if yellow_box_count == 2: return yellow_box_position
+                            elif yellow_box_count == 1: return yellow_box_position.append((0,2))
+
+        elif yellow_box_count == 0 or (yellow_box_count==1 and yellow_box_position[0].y == 0):
                 while (distance_front.get_distance() / 23 - position.y > 1):
                             move.move_straight()
                             check_horizontal(distance_right)
-                move.turn_right()
+                
 
                 if yellow_box_count == 2: return yellow_box_position
                 elif yellow_box_count == 1: 
-                    if yellow_box_position[0].y !=3:
+                    if yellow_box_position[0].y !=3:        # case when the top horizontal line is empty
                         while (distance_front.get_distance() / 23 - position.y > 1):
                             move.move_straight()
                             check_horizontal(distance_right)
                             return yellow_box_position
-                    else: # case when it is on top horizontal line where one yellow box is hidden behind another
+                    else:           # case when it is on top horizontal line where one yellow box is hidden behind another
                         # move to (0,2) 
-                        move.turn_right()
-                        move.turn_right()
+                        move.turn_around()
                         move.move_straight()
 
                         move.turn_left()
@@ -200,7 +211,7 @@ def search_yellow_boxes(distance_front, distance_right, move):
                     # P A R T   2 ~~~~~~
 
 def search_red_cells(distance_front, distance_right, move):
-        global red_count, red_position, red_cell_matrix
+        global red_count, red_position, red_cell_matrix, yellow_box_count, yellow_box_position, position
 
 
 
