@@ -207,14 +207,18 @@ def search_yellow_boxes(distance_front, distance_right, move):
 
 
 def search_red_cells(distance_front, distance_right, move):
-        global red_count, yellow_box_count, position
+        global red_count, yellow_box_count, position, grid
 
         for i in range(x):
-             for j in range (y):
-                  if grid[i][j] == None:
-                       move.move_to_position((i, j))  ##should implement this somehow + it should contain check_color funciton + while going around the yellow boxes
-                       
-        return grid
+            for j in range (y):
+                if red_count==2: return grid
+                else:
+                    if grid[i][j] == None:
+                        move.to_position() #### not done
+                        check_color()
+
+                        
+
         
 
                     # P A R T   3 ~~~~~~ done kinda ~~~~~~~
@@ -285,6 +289,9 @@ if __name__ =='__main__':
     initial_position()
     move = Move(('B', 'A'))
 
-    
+    search_yellow_boxes()
+    search_red_cells()
+    return_home()
+
     print(grid)
     
