@@ -59,7 +59,6 @@ def initial_position():
         if hub.right_button.is_pressed():
             start = (5,3)
             position = (5,3)
-            Orientation
             break
 
 
@@ -278,6 +277,15 @@ if __name__ =='__main__':
     initial_position()
     move = Move(('B', 'A'))
 
-    
+    while red_count != 2 and yellow_box_count != 2:
+         
+        # search for yellow boxes
+
+        # search for red cells
+
+        pass
+
+    # return home
+    return_home(move)
     print(grid)
     
