@@ -116,9 +116,9 @@ def check_color():
 def check_horizontal(distance_sensor):
         global yellow_box_count
 
-        distance_to_edge = abs (5 - position.x)
+        cells_to_hor_edge = 5 - position.x
 
-        if distance_sensor.get_distance() / 23 < distance_to_edge:
+        if distance_sensor.get_distance() / 23 < cells_to_hor_edge:
                 box_position = min(int(distance_sensor.get_distance() / 23) + 1, 5)
                 grid[box_position][position.y] = 'B'
                 yellow_box_count += 1
@@ -126,9 +126,9 @@ def check_horizontal(distance_sensor):
 def check_vertical(distance_sensor):
         global yellow_box_count
         
-        distance_to_edge = 3 - position.x
+        cells_to_vert_edge = 3 - position.x
 
-        if distance_sensor.get_distance() / 23 < distance_to_edge:
+        if distance_sensor.get_distance() / 23 < cells_to_vert_edge:
                 box_position = min(int(distance_sensor.get_distance() / 23) + 1, 3)
                 grid[box_position][position.y] = 'B'
                 yellow_box_count += 1
