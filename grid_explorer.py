@@ -22,8 +22,8 @@ distance_right = DistanceSensor('D')
 
 y = 4
 x = 6
-start = (0,0)
-position = (0,0)
+start = (0, 0)
+position = (0, 0)
 
 red_count = 0
 box_count = 0
@@ -50,9 +50,9 @@ def initial_position():
 
 class Orientation(): # class to keep track of the orientation of the robot
 
-    def __init__(self):
-        self.directions = [(1, 0), (0, 1), (-1, 0), (0, -1)] # N=0, E=1, S=2, W=3
-        self.current = 1
+    def __init__(self, dir = 1):
+        self.directions = [(0, 1), (1, 0), (0, -1), (-1, 0)] # N=0, E=1, S=2, W=3
+        self.current = dir
         self.current_direction = self.directions[self.current]
 
     def turn_right(self):
@@ -68,18 +68,23 @@ class Move(): # class to move the robot
 
     def __init__(self, wheels): # front_wheels = (right, left)
         self.motor = MotorPair(wheels[0], wheels[1])
+        if start == (5, 3):
+            self.direction = Orientation(2)
+        else:
+            self.direction = Orientation()
 
     def move_straight(self):
+        global position
         self.motor.move_tank(amount = 23 , unit='cm', left_speed=-50, right_speed=-50)
         position = position + self.direction.current_direction
-        check_color()
+        time.sleep(1)
 
     def turn_left(self):
-        self.motor.move_tank(-180, 'degrees', 50, -50)
+        self.motor.move_tank(-180, 'degrees', -50, 50)
         self.direction.turn_left()
 
     def turn_right(self):
-        self.motor.move_tank(-180, 'degrees', -50, 50)
+        self.motor.move_tank(-180, 'degrees', 50, -50)
         self.direction.turn_right()
 
     def turn_around(self):
@@ -225,7 +230,8 @@ def nearest_unvisited_neighbor():
         for j in range(y):
             if grid[i][j] == None:
                 unvisited.add((i, j))
-
+    if len(unvisited) == 0:
+        return None
     min_distance = float('inf')
     min_neighbor = None
     for (i, j) in unvisited:
@@ -237,8 +243,10 @@ def nearest_unvisited_neighbor():
     return min_neighbor
 
 
-def goto_destination(move, destination): ### check if it's correct
+def goto_destination(destination): ### check if it's correct
+    global position
     path = shortest_path(destination)
+    print(path)
     for pos_x, pos_y in path:
         dir_x = pos_x - position[0]
         dir_y = pos_y - position[1]
@@ -262,10 +270,13 @@ def search_red_cells(move): ### check if it's correct
 
 # if __name__ =='__main__':
 initial_position()
-move = Move(('F', 'E'))
+move = Move(('E', 'F'))
 
-search_yellow_boxes(distance_front, distance_right, move)
-search_red_cells(distance_front, distance_right, move)
+# search_yellow_boxes(distance_front, distance_right, move)
+grid[0][1] = 'B'
+grid[3][3] = 'B'
+# search_red_cells(move)
+position = (5,1)
 goto_destination(move, start)
 
 for i in range(x):
