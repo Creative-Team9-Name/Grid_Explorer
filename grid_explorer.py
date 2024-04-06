@@ -22,8 +22,8 @@ distance_right = DistanceSensor('D')
 
 y = 4
 x = 6
-start = (0, 0)
-position = (0, 0)
+start = (0,0)
+position = (0,0)
 
 red_count = 0
 box_count = 0
@@ -31,6 +31,7 @@ box_count = 0
 grid = [[None for i in range(y)] for j in range(x)]
 grid[0][0] = 'W'
 grid[5][3] = 'W'
+
 
 # wait for starting position
 def initial_position():
@@ -50,7 +51,7 @@ def initial_position():
 
 class Orientation(): # class to keep track of the orientation of the robot
 
-    def __init__(self, dir = 1):
+    def __init__(self, dir = 0):
         self.directions = [(0, 1), (1, 0), (0, -1), (-1, 0)] # N=0, E=1, S=2, W=3
         self.current = dir
         self.current_direction = self.directions[self.current]
@@ -68,23 +69,34 @@ class Move(): # class to move the robot
 
     def __init__(self, wheels): # front_wheels = (right, left)
         self.motor = MotorPair(wheels[0], wheels[1])
-        if start == (5, 3):
-            self.direction = Orientation(2)
-        else:
-            self.direction = Orientation()
+        self.direction = Orientation()
 
     def move_straight(self):
         global position
-        self.motor.move_tank(amount = 23 , unit='cm', left_speed=-50, right_speed=-50)
-        position = position + self.direction.current_direction
+        self.motor.move_tank(amount = 23.5 , unit='cm', left_speed=-50, right_speed=-50)
+        self.pos_x = position[0] + self.direction.current_direction[0]
+        self.pos_y = position[1] + self.direction.current_direction[1]
+        position = (self.pos_x, self.pos_y)
         time.sleep(1)
 
     def turn_left(self):
-        self.motor.move_tank(-180, 'degrees', -50, 50)
+        hub.motion_sensor.reset_yaw_angle()
+        while hub.motion_sensor.get_yaw_angle() > -87:
+            self.motor.start_tank(left_speed=-50, right_speed=50)
+            time.sleep(0.1)
+            self.motor.stop()
+        # angle = hub.motion_sensor.get_yaw_angle()
+        # print('Angle:', angle)
         self.direction.turn_left()
 
     def turn_right(self):
-        self.motor.move_tank(-180, 'degrees', 50, -50)
+        hub.motion_sensor.reset_yaw_angle()
+        while hub.motion_sensor.get_yaw_angle() < 87:
+            self.motor.start_tank(left_speed=50, right_speed=-50)
+            time.sleep(0.1)
+            self.motor.stop()
+        # angle = hub.motion_sensor.get_yaw_angle()
+        # print('Angle:', angle)
         self.direction.turn_right()
 
     def turn_around(self):
@@ -93,94 +105,128 @@ class Move(): # class to move the robot
 
 
 def check_color(): # check the color of the cell
-    for i in range(3):
-        if (color.get_color() == 'red'):
+    cell_color = None
+    i = 0
+    while cell_color == None and i < 10:
+        cell_color = color.get_color()
+        if (cell_color == 'red'):
             red_count+= 1
             grid[position[0]][position[1]] = 'R'
-            return
         else:
             grid[position[0]][position[1]] = 'W'
-        time.sleep(0.1)
-
+        time.sleep(0.05)
+        i += 1
 
 def check_horizontal(distance_sensor): # check if there is a yellow box on the horizontal line
-    global box_count, grid
-    cells_to_hor_edge = 5 - position[0]
+    global box_count, grid, position
     distance = distance_sensor.get_distance_cm()
-    if distance != None and distance / 23 < cells_to_hor_edge:
-            box_position = int(distance / 23) + position[0] +1
+    if distance != None:
+        box_position = int(distance / 23) + position[0] +1
+        if box_position <= 5:
             grid[box_position][position[1]] = 'B'
             box_count += 1
-
 
 def check_vertical(distance_sensor): # check if there is a yellow box on the vertical line
-    global box_count, grid
-
-    cells_to_vert_edge = 3 - position[1]
+    global box_count, grid, position
     distance = distance_sensor.get_distance_cm()
-    if distance != None and distance / 23 < cells_to_vert_edge:
-            box_position = int(distance / 23) + position[1] + 1
-            grid[box_position][position[1]] = 'B'
+
+    if distance != None:
+        box_position = int(distance / 23) + position[1] +1
+        if box_position <= 3:
+            grid[position[0]][box_position] = 'B'
             box_count += 1
+'''
+def check_horizontal(distance_sensor): # check if there is a yellow box on the horizontal line
+    global box_count, grid, position
+    distance = None
+    i = 0
+    print("check horizontal")
+    while distance == None and i < 5:
+        print(i)
+        distance = distance_sensor.get_distance_cm()
+        if distance != None:
+            box_position = int(distance / 23) + position[0] +1
+            if box_position <= 5:
+                grid[box_position][position[1]] = 'B'
+                box_count += 1
+        i += 1
 
+def check_vertical(distance_sensor): # check if there is a yellow box on the vertical line
+    global box_count, grid, position
+    distance = None
+    i = 0
+    print("check vertical")
+    if distance == None and i < 5:
+        print(i)
+        distance = distance_sensor.get_distance_cm()
+        if distance != None:
+            box_position = int(distance / 23) + position[1] +1
+            if box_position <= 3:
+                grid[position[0]][box_position] = 'B'
+                box_count += 1
+        i += 1
 
+'''
 
 def search_yellow_boxes(distance_front, distance_right, move):
     global position, box_count, red_count
 
     # at initial position ~>
     check_vertical(distance_front)
+    time.sleep(1)
     check_horizontal(distance_right)
+    time.sleep(1)
 
     if box_count < 2:    # case where we find 2 boxes on vert1 and hor1 lines
-        if box_count == 1 and any(grid[start[0]][j] == 'B' for j in range(y)):
+        if any(grid[start[0]][j] == 'B' for j in range(y)):
             move.turn_right()
             move.move_straight()
+            check_color()
             move.turn_left()
+            check_vertical(distance_front)
 
-        check_vertical(distance_front)
+            if box_count < 2:
+                for i in range(3):
+                    move.move_straight()
+                    check_horizontal(distance_right)
+                if box_count < 2:
+                    move.turn_left()
+                    check_horizontal(distance_front)
+                    if box_count < 2:
+                        grid[start[0]][abs (start[1]-2)] = 'B'
 
-        if box_count == 2: return grid # if case we find second box on vert2
         else:
             for i in range(3):
                 move.move_straight()
+                check_color()
                 check_horizontal(distance_right)
+
+
             if box_count < 2:
-                move.turn_left()
-                check_horizontal(distance_front)
-                if box_count == 2: return grid
-                elif box_count == 1:
-                    grid[start[0]][abs (start[1]-2)] = 'B'
-                    return grid
-    else:
-        while (distance_front.get_distance_cm() / 23 - position[1] > 1):
-            move.move_straight()
-            check_horizontal(distance_right)
-
-
-        if box_count == 2: return grid
-        elif box_count == 1 and any(grid[j][abs(start[1]-3)] == 'B' for j in range(5)): # case when it is on top horizontal line where one yellow box is hidden behind another
-            move.turn_around()
-            move.move_straight()
-
-            move.turn_left()
-
-            while (distance_front.get_distance_cm() / 23 - position[1] > 1):
+                if any(grid[j][abs(start[1]-3)] == 'B' for j in range(5)): # case when it is on top horizontal line where one yellow box is hidden behind another
+                    move.turn_around()
                     move.move_straight()
-            move.turn_left()
-            check_horizontal(distance_front)
-            if box_count == 2: return grid
-            else:
-                move.move_straight()
-                move.turn_left()
-                check_horizontal(distance_front)
-                return grid
-        else:        # when some other horizontal line and the box hidden behind it, we check vertical lines while moving horizontally
-            while (distance_front.get_distance_cm() / 23 - position[1] > 1):
-                move.turn_right()
-                move.move_straight()
-                check_horizontal(distance_right)
-                return grid
+                    check_color()
+                    move.turn_left()
+
+                    for i in range (5):
+                        move.move_straight()
+                        check_color()
+                    move.turn_left()
+                    check_horizontal(distance_front)
+                    if box_count < 2:
+                        move.move_straight()
+                        check_color()
+                        move.turn_left()
+                        check_horizontal(distance_front)
+                else:        # when some other horizontal line and the box hidden behind it, we check vertical lines while moving horizontally
+                    for i in range (5):
+                        move.turn_right()
+                        move.move_straight()
+                        check_color()
+                        check_vertical(distance_right)
+
+    return grid
 
 
 def shortest_path(destination):
@@ -243,7 +289,7 @@ def nearest_unvisited_neighbor():
     return min_neighbor
 
 
-def goto_destination(destination): ### check if it's correct
+def goto_destination(move, destination): ### check if it's correct
     global position
     path = shortest_path(destination)
     print(path)
@@ -252,36 +298,58 @@ def goto_destination(destination): ### check if it's correct
         dir_y = pos_y - position[1]
         dir = (dir_x, dir_y)
         if dir != move.direction.current_direction:
+            print('dir:', dir, 'current:', move.direction.current_direction)
             if dir == move.direction.directions[(move.direction.current + 1) % 4]:
                 move.turn_right()
+                # print("turn right")
             elif dir == move.direction.directions[(move.direction.current - 1) % 4]:
                 move.turn_left()
+                # print("turn left")
             else:
                 move.turn_around()
+                # print("turn around")
         move.move_straight()
+        # print("move straight")
+        print("position ", position)
 
 
 def search_red_cells(move): ### check if it's correct
     while(red_count < 2):
-        path = shortest_path(nearest_unvisited_neighbor())
-        goto_destination(move, path)
-        check_color()
+        destination = nearest_unvisited_neighbor()
+        if destination == None:
+            print("Error: no unvisited neighbor!")
+            return
+        else:
+            print("Nearest neighbor: ", destination)
+            goto_destination(move, destination)
+            check_color()
 
 
-# if __name__ =='__main__':
+################################### main ###################################
+
 initial_position()
 move = Move(('E', 'F'))
 
-# search_yellow_boxes(distance_front, distance_right, move)
-grid[0][1] = 'B'
-grid[3][3] = 'B'
-# search_red_cells(move)
-position = (5,1)
+print("find yellow boxes")
+search_yellow_boxes(distance_front, distance_right, move)
+# grid[1][1] = 'B'
+# grid[1][3] = 'B'
+
+print("search red cells")
+search_red_cells(move)
+# position = (4,3)
+
+print("Go home")
 goto_destination(move, start)
 
 for i in range(x):
     for j in range(y):
         if grid[i][j] == 'B':
-            print("(" + i + "," + j + "," + "B")
+            print("(" + str(i) + "," + str(j)+ "," + "B" + ")")
         elif grid[i][j] == 'R':
-            print("(" + i + "," + j + "," + "R")
+            print("(" + str(i) + "," + str(j) + "," + "R" + ")")
+        else:
+            print("(" + str(i) + "," + str(j) + "," + "W" + ")")
+
+
+############################################################################

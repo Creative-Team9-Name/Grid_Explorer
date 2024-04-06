@@ -11,7 +11,7 @@ box_count = 0
 
 grid = [[None for i in range(y)] for j in range(x)]
 red_position = []
-box_position = [(2, 0), (2,1)]
+box_position = [(1, 1), (1,3)]
 for pos_x, pos_y in box_position:
     grid[pos_x][pos_y] = 'B'
 
@@ -36,7 +36,7 @@ class Orientation(): # class to keep track of the orientation of the robot
         self.turn_right()
         self.turn_right()
 
-orientation = Orientation(2)
+orientation = Orientation(0)
 print("current:", orientation.current_direction)   
 
 def shortest_path(destination):
@@ -100,11 +100,11 @@ def goto_destination(destination): ### check if it's correct
                 orientation.turn_around()
                 print("turn around")
         print("move straight")
-        position = (pos_x, pos_y)
+        position = (position[0] + dir_x, position[1] + dir_y)
         print('position:', position)
 
-position = (3, 0)
-start = (5,3)
+position = (5, 1)
+start = (0, 0)
 
 goto_destination(start)
 print(shortest_path)
