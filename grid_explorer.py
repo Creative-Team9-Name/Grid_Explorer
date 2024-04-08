@@ -69,7 +69,10 @@ class Move(): # class to move the robot
 
     def __init__(self, wheels): # front_wheels = (right, left)
         self.motor = MotorPair(wheels[0], wheels[1])
-        self.direction = Orientation()
+        if start == (0, 0):
+            self.direction = Orientation()
+        else:
+            self.direction = Orientation(2)
 
     def move_straight(self):
         global position
